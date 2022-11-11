@@ -1,6 +1,6 @@
 import networkx as nx
 import numpy as np
-import Env.utils as utils
+import utils
 import multiprocessing as mp
 import math
 import torch
@@ -93,7 +93,7 @@ class Simulation(object):
                 remaining_budget)
 
     def reward(self, incentives):
-        return torch.mean((self.action_one_hot_matrix[:,0]*2-1)*(1 + (self.user_out_degree - self.user_in_degree)/self.num_of_user) + self.action_one_hot_matrix[:,0] * (1-incentives))
+        return torch.sum((self.action_one_hot_matrix[:,0]*2-1)*(1 + (self.user_out_degree - self.user_in_degree)/self.num_of_user) + self.action_one_hot_matrix[:,0] * (1-incentives/self.budget))
 
     def sample_action(self):
         return torch.clip(torch.normal(0, 1, size=(1, self.num_of_user)), -1, 1).flatten().to(device)

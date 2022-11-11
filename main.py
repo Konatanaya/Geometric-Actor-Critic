@@ -7,7 +7,6 @@ import torch
 import numpy as np
 import os
 import environment
-import dgl
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -18,17 +17,17 @@ def init_parser():
     parser.add_argument('-b', '--budget', type=int, default=20)
     parser.add_argument('-p', '--policy', type=str, default="TD3")
     parser.add_argument('-s', '--seed', type=int, default=321)
-    parser.add_argument('-ep', '--episodes', type=int, default=50000)
-    parser.add_argument('-ee', '--exp_episodes', type=int, default=1000)
-    parser.add_argument('-ts', '--time_steps', type=int, default=20)
-    parser.add_argument('-ef', '--eval_freq', type=int, default=100)
+    parser.add_argument('-ep', '--episodes', type=int, default=10000)
+    parser.add_argument('-ee', '--exp_episodes', type=int, default=1500)
+    parser.add_argument('-ts', '--time_steps', type=int, default=10)
+    parser.add_argument('-ef', '--eval_freq', type=int, default=10)
     parser.add_argument('-evat', '--evaluation_timesteps', type=int, default=150)
     parser.add_argument('-rb', '--replay_size', type=int, default=1e5)
     parser.add_argument('-bs', '--batch_size', type=int, default=256)
 
     parser.add_argument('-t', '--train', action='store_true', default=False)
     parser.add_argument('-eva', '--evaluation', action='store_true', default=False)
-
+    parser.add_argument('--save_model', action="store_true", default=True)
     args = parser.parse_args()
 
     parser.print_help()
@@ -57,6 +56,7 @@ def train_model(args, model, replay_buffer, file_name):
     env = environment.Simulation(args.dataset, 4, args.budget)
     evaluations = []
     starttime = time.time()
+    eval_active_num = 0
     for ep in range(0, args.episodes):
         episode_reward = 0.
         features, active_rate, active_num = env.reset()
@@ -84,12 +84,14 @@ def train_model(args, model, replay_buffer, file_name):
             print(f"Episode: {ep} | Reward: {episode_reward:.3f} | Final Rates: {active_nums[-1] / env.num_of_user} | Last 5 Rates: {active_nums[-5:]} | Time: {(time.time() - starttime)}s")
             starttime = time.time()
         if ep % args.eval_freq == 0 and ep >= args.exp_episodes:
-            eval_reward, eval_active_num_ = eval_policy(model, args, eval_timesteps=args.time_steps)
+            eval_reward, eval_active_num_ = eval_policy(model, args, eval_timesteps=args.time_steps+10)
             print(f"Eval {model.name} | Episode {ep} | Total Reward: {eval_reward:.3f} | Active num: {eval_active_num_[-5:]} | Time: {(time.time() - starttime)}s")
             evaluations.append([ep, eval_reward])
             np.save(f"./Results/{args.dataset}/eval/{file_name}", evaluations)
             if args.save_model:
-                model.save(f"./Models/{args.dataset}/{file_name}")
+                if eval_active_num_[-1] >= eval_active_num:
+                    eval_active_num = eval_active_num_[-1]
+                    model.save(f"./Models/{args.dataset}/{file_name}")
             starttime = time.time()
 
 
@@ -101,14 +103,14 @@ if __name__ == '__main__':
     file_name = f"{args.policy}_{args.budget}_{args.seed}"
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-    dgl.seed(args.seed)
 
     if not os.path.exists("./Results/" + args.dataset):
         os.makedirs("./Results/" + args.dataset)
 
     if not os.path.exists("./Results/" + args.dataset + "/" + "eval"):
         os.makedirs("./Results/" + args.dataset + "/" + "eval")
-
+    if not os.path.exists("./Results/" + args.dataset + "/" + "performance"):
+        os.makedirs("./Results/" + args.dataset + "/" + "performance")
     if not os.path.exists("./Models/" + args.dataset):
         os.makedirs("./Models/" + args.dataset)
 

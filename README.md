@@ -15,6 +15,14 @@ If you make use of this code or the GAC algorithm in your work, please cite the 
         author = {Wu, Shiqing and Li, Weihua and Bai, Quan},
     }
 
+    @inproceedings{wu2021learning,
+      title={Learning Policies for Effective Incentive Allocation in Unknown Social Networks},
+      author={Wu, Shiqing and Bai, Quan and Li, Weihua},
+      booktitle={Proceedings of the 20th International Conference on Autonomous Agents and MultiAgent Systems},
+      pages={1701--1703},
+      year={2021}
+    }
+
 If you make use of Agent-based Decision-Making (ADM) Model in your work, please cite the following paper:
 
     @inproceedings{wu2019adaptive,

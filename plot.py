@@ -7,11 +7,6 @@ import argparse
 def init_parser():
     parser = argparse.ArgumentParser(description="Hyper Parameters")
     parser.add_argument('-d', '--dataset', type=str, default='twitter')
-    parser.add_argument('-b', '--budget', type=int, default=20)
-    parser.add_argument('-p', '--policy', type=str, default="TD3")
-    parser.add_argument('-tp', '--training_plot', action='store_true', default=False)
-    parser.add_argument('-pp', '--performance_plot', action='store_true', default=False)
-    parser.add_argument('--plot', action='store_true', default=False)
     args = parser.parse_args()
 
     parser.print_help()

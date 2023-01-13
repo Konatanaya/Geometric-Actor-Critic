@@ -2,7 +2,7 @@ import argparse
 import time
 
 import pyhocon
-import GAC, TD3, ReplayBuffer
+import GAC, ReplayBuffer
 import torch
 import numpy as np
 import os

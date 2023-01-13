@@ -1,10 +1,7 @@
 import networkx as nx
 import numpy as np
 import utils
-import multiprocessing as mp
-import math
 import torch
-import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -41,7 +38,6 @@ class Simulation(object):
         self.action_one_hot_matrix = torch.eye(self.num_of_actions)[self.action_matrix].to(device)
         incentive = torch.zeros((self.num_of_user, 1)).to(device)
         self.feature_matrix = torch.cat([incentive, self.action_one_hot_matrix], dim=1).flatten()
-        # self.feature_matrix = self.action_one_hot_matrix.flatten()
         active_num = torch.sum(self.action_matrix == 0)
         self.last_active_rate = active_num / self.num_of_user
 

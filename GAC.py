@@ -135,10 +135,10 @@ class Actor(nn.Module):
             state_out = graph_out.matmul(node_out.t())
             state_in = graph_in.matmul(node_in.t())
 
+        state_out = F.normalize(state_out, dim=-1)
+        state_in = F.normalize(state_in, dim=-1)
         state = torch.cat([state_out, state_in], -1)
 
-        # state = state_out - state_in
-        state = state / torch.norm(state, p=2, dim=-1, keepdim=True)
         a = F.relu(self.l1(state))
         a = F.relu(self.l2(a))
         a = self.max_action * torch.tanh(self.l3(a))
@@ -172,10 +172,11 @@ class Critic(nn.Module):
         else:
             state_out_1 = graph_out_1.matmul(node_out_1.t())
             state_in_1 = graph_in_1.matmul(node_in_1.t())
-        # state = state_out - state_in
 
+        state_out_1 = F.normalize(state_out_1, dim=-1)
+        state_in_1 = F.normalize(state_in_1, dim=-1)
         sa_1 = torch.cat([state_out_1, state_in_1, action], -1)
-        sa_1 = sa_1 / torch.norm(sa_1, p=2, dim=-1, keepdim=True)
+
         q1 = F.relu(self.l1(sa_1))
         q1 = F.relu(self.l2(q1))
         q1 = self.l3(q1)
@@ -188,10 +189,11 @@ class Critic(nn.Module):
         else:
             state_out_2 = graph_out_2.matmul(node_out_2.t())
             state_in_2 = graph_in_2.matmul(node_in_2.t())
-        # state = state_out - state_in
 
+        state_out_2 = F.normalize(state_out_2, dim=-1)
+        state_in_2 = F.normalize(state_in_2, dim=-1)
         sa_2 = torch.cat([state_out_2, state_in_2, action], -1)
-        sa_2 = sa_2 / torch.norm(sa_2, p=2, dim=-1, keepdim=True)
+
         q2 = F.relu(self.l4(sa_2))
         q2 = F.relu(self.l5(q2))
         q2 = self.l6(q2)
@@ -207,8 +209,9 @@ class Critic(nn.Module):
             state_out = graph_out.matmul(node_out.t())
             state_in = graph_in.matmul(node_in.t())
 
+        state_out = F.normalize(state_out, dim=-1)
+        state_in = F.normalize(state_in, dim=-1)
         sa = torch.cat([state_out, state_in, action], -1)
-        sa = sa / torch.norm(sa, p=2, dim=-1, keepdim=True)
         q1 = F.relu(self.l1(sa))
         q1 = F.relu(self.l2(q1))
         q1 = self.l3(q1)

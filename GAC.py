@@ -252,9 +252,8 @@ class GAC(nn.Module):
         self.adjs_in = torch.FloatTensor(adjs_in).to(device)
 
     def select_action(self, features):
-        # features = torch.FloatTensor(features).to(device)
         return self.actor(features.reshape(self.num_of_users, -1), self.adjs_out, self.adjs_in).flatten()
-        # return self.actor(features, self.adjs_out, self.adjs_in).cpu().data.numpy().flatten()
+
 
     def soft_update(self):
         # Update the frozen target models
@@ -283,9 +282,7 @@ class GAC(nn.Module):
     def train(self, replaybuffer, batch_size):
         self.total_it += 1
         features, actions, next_features, rewards, dones = replaybuffer.sample(batch_size)
-        # print(local_states)
-        # features = torch.FloatTensor(features).to(device)
-        # next_features = torch.FloatTensor(next_features).to(device)
+
         features = features.reshape((batch_size, self.num_of_users, -1))
         next_features = next_features.reshape((batch_size, self.num_of_users, -1))
         adjs_out = self.adjs_out.unsqueeze(0)
@@ -293,9 +290,7 @@ class GAC(nn.Module):
         actions = actions.reshape((batch_size, 1, -1))
         rewards = rewards.reshape((batch_size, 1, 1))
         dones = dones.reshape((batch_size, 1, 1))
-        # actions = torch.FloatTensor(actions).reshape((batch_size, 1, -1)).to(device)
-        # rewards = torch.FloatTensor(rewards).reshape((batch_size, 1, 1)).to(device)
-        # dones = torch.FloatTensor(dones).reshape((batch_size, 1, 1)).to(device)
+
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise
@@ -305,6 +300,7 @@ class GAC(nn.Module):
             target_Q = torch.min(target_Q1, target_Q2)
 
             target_Q = rewards + dones * target_Q
+
         # Get current Q estimates
         current_Q1, current_Q2 = self.critic(features, adjs_out, adjs_in, actions)
         #

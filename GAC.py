@@ -181,20 +181,20 @@ class Critic(nn.Module):
         q1 = F.relu(self.l2(q1))
         q1 = self.l3(q1)
 
-        # graph_out_2, node_out_2 = self.gnn_out_2(features, adj_out)
-        # graph_in_2, node_in_2 = self.gnn_in_2(features, adj_in)
-        # if len(features.size()) == 3:
-        #     state_out_2 = graph_out_2.matmul(node_out_2.permute(0, 2, 1))
-        #     state_in_2 = graph_in_2.matmul(node_in_2.permute(0, 2, 1))
-        # else:
-        #     state_out_2 = graph_out_2.matmul(node_out_2.t())
-        #     state_in_2 = graph_in_2.matmul(node_in_2.t())
-        #
-        # state_out_2 = F.normalize(state_out_2, dim=-1)
-        # state_in_2 = F.normalize(state_in_2, dim=-1)
-        # sa_2 = torch.cat([state_out_2, state_in_2, action], -1)
+        graph_out_2, node_out_2 = self.gnn_out_2(features, adj_out)
+        graph_in_2, node_in_2 = self.gnn_in_2(features, adj_in)
+        if len(features.size()) == 3:
+            state_out_2 = graph_out_2.matmul(node_out_2.permute(0, 2, 1))
+            state_in_2 = graph_in_2.matmul(node_in_2.permute(0, 2, 1))
+        else:
+            state_out_2 = graph_out_2.matmul(node_out_2.t())
+            state_in_2 = graph_in_2.matmul(node_in_2.t())
+        
+        state_out_2 = F.normalize(state_out_2, dim=-1)
+        state_in_2 = F.normalize(state_in_2, dim=-1)
+        sa_2 = torch.cat([state_out_2, state_in_2, action], -1)
 
-        q2 = F.relu(self.l4(sa_1))
+        q2 = F.relu(self.l4(sa_2))
         q2 = F.relu(self.l5(q2))
         q2 = self.l6(q2)
         return q1, q2
